@@ -4,7 +4,7 @@ import ProtectedRoute from "@/app/utils/ProtectedRoute";
 const LoginPage = () => {
   return (
     <ProtectedRoute>
-      <DashboardTemplate />;
+      <DashboardTemplate />
     </ProtectedRoute>
   );
 };
