@@ -9,44 +9,43 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: debugae-front   
-  AZURE_WEBAPP_PACKAGE_PATH: '.'    
 
 jobs:
   ci:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
         
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Build app
-      run: npm run build
+      - name: Build app
+        run: npm run build
 
-    - name: Prepare artifact (zip .next + public + package.json + node_modules)
-      run: |
-        rm -rf deploy
-        mkdir -p deploy
-        cp package.json package-lock.json next.config.js ./deploy 2>/dev/null || true
-        cp -r .next ./deploy
-        cp -r public ./deploy || true
-        cp -r node_modules ./deploy || true
-        cd deploy
-        zip -r ../app.zip .
-        cd ..
+      - name: Prepare artifact (zip .next + public + package.json + node_modules)
+        run: |
+          rm -rf deploy
+          mkdir -p deploy
+          cp package.json package-lock.json next.config.js ./deploy 2>/dev/null || true
+          cp -r .next ./deploy
+          cp -r public ./deploy || true
+          cp -r node_modules ./deploy || true
+          cd deploy
+          zip -r ../app.zip .
+          cd ..
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: next-app-artifact
-        path: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/debugae'
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-app-artifact
+          path: app.zip
 
   cd:
     needs: ci
@@ -62,14 +61,11 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
-      - name: 'Deploy to azure app service'
+      - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with: 
           app-name: ${{ env.AZURE_WEBAPP_NAME }} 
-          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/debugae'
+          package: ./artifact/app.zip
 
-      - name: logout
-        run: |
-          az logout
-      
-    
+      - name: Logout
+        run: az logout
