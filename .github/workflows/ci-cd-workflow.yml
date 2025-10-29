@@ -30,16 +30,15 @@ jobs:
         run: npm run build
 
       - name: Prepare artifact (zip .next + public + package.json + node_modules)
+        shell: pwsh
         run: |
-          rm -rf deploy
-          mkdir -p deploy
-          cp package.json package-lock.json next.config.js ./deploy 2>/dev/null || true
-          cp -r .next ./deploy
-          cp -r public ./deploy || true
-          cp -r node_modules ./deploy || true
-          cd deploy
-          zip -r ../app.zip .
-          cd ..
+          if (Test-Path deploy) { Remove-Item -Recurse -Force deploy }
+          New-Item -ItemType Directory deploy | Out-Null
+          Copy-Item package.json, package-lock.json, next.config.js deploy -ErrorAction SilentlyContinue
+          Copy-Item -Recurse .next deploy
+          Copy-Item -Recurse public deploy -ErrorAction SilentlyContinue
+          Copy-Item -Recurse node_modules deploy -ErrorAction SilentlyContinue
+          Compress-Archive -Path deploy\* -DestinationPath app.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
