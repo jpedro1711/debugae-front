@@ -45,7 +45,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/app/components/atoms/TableComponent"
 import EditBugModal from "../organism/EditBugModal";
 import { Comment, CommentService } from "@/app/services/commentService";
 import { UserService } from "@/app/services/userService";
